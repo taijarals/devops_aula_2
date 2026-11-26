@@ -6,7 +6,7 @@ Avaliação prática em grupos de até cinco integrantes. Cada grupo deve constr
 
 Objetivo: versionar um programa Python, executar testes no GitHub Actions, publicar seu relatório no GitHub Pages e explicar o processo com evidências.
 
-Valor total: 10,0 pontos. São cinco questões abertas de 2,0 pontos cada: 1,0 ponto pela explicação técnica e 1,0 ponto pela relação com as evidências e a análise do processo.
+Valor total: 10,0 pontos. São cinco questões abertas de 2,0 pontos cada.
 
 Use os códigos fornecidos e siga as etapas na ordem. As pastas deste repositório são material de consulta; os destinos no repositório do grupo estão indicados em cada etapa. Todos devem participar da execução e da discussão das respostas.
 
@@ -25,6 +25,45 @@ Em caso de problema no computador ou na internet, comunique ao professor. Use os
 | [modelos/02_ci_cd_pages.yml](modelos/02_ci_cd_pages.yml) | `substitui o mesmo .github/workflows/ci-cd.yml na etapa 4` |
 
 Abra o arquivo e use a opção de copiar conteúdo ou Raw. Copie somente o código, sem marcadores de bloco Markdown. Python e YAML dependem da indentação por espaços. Os códigos completos também acompanham o anexo da prova impressa.
+
+## Como os testes automatizados funcionam
+
+### unittest e TestCase
+
+unittest é o módulo de testes da biblioteca padrão do Python. Ele organiza e executa verificações e apresenta seus resultados, sem instalação adicional neste projeto.
+
+A classe TestPontuacao herda de unittest.TestCase e recebe métodos de verificação, como assertEqual. Cada método iniciado por test_ representa um caso. self identifica a instância do teste em execução.
+
+### Como ler assertEqual
+
+```python
+self.assertEqual(resultado_obtido, resultado_esperado)
+```
+
+assertEqual compara os dois valores. Se forem iguais, a verificação passa; se forem diferentes, registra uma falha com os valores comparados. Ao falhar, o método de teste termina; os demais casos continuam por padrão.
+
+Exemplo independente para leitura da sintaxe:
+
+```python
+self.assertEqual(2 + 2, 4)
+```
+
+O primeiro argumento produz 4; o segundo informa o esperado. A verificação passa. No projeto, o primeiro argumento chama calcular_pontuacao e o segundo informa a pontuação esperada.
+
+### Execução e importância para DevOps
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Na raiz do projeto, discover busca arquivos test*.py em tests e executa seus casos; -v mostra os nomes. Ran N tests informa a quantidade. OK indica sucesso; FAILED informa falhas ou erros.
+
+O assert simples também verifica condições, mas sozinho não organiza a execução nem gera esse resumo. TestCase e assertEqual ajudam a repetir verificações e localizar regressões após mudanças.
+
+No Actions, o comando sinaliza falha ao processo quando há teste reprovado. Nos modelos fornecidos, isso reprova o job; needs: testes condiciona a publicação ao sucesso dele. A proteção depende também da configuração do workflow.
+
+Referência: https://docs.python.org/3/library/unittest.html
+
 
 ## Etapa 1 — Versionamento e rastreabilidade
 
