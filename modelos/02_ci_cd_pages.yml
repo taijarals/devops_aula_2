@@ -1,0 +1,70 @@
+name: CI/CD Python
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  testes:
+    name: Testar Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Buscar codigo
+        uses: actions/checkout@v6
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Executar testes
+        run: python -m unittest discover -s tests -v
+
+  publicar:
+    name: Publicar relatorio
+    needs: testes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Buscar codigo
+        uses: actions/checkout@v6
+
+      - name: Preparar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Gerar relatorio Markdown com Python
+        run: python gerar_relatorio.py
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Converter Markdown em pagina
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: './site'
+          destination: './_site'
+
+      - name: Empacotar pagina
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './_site'
+
+      - name: Publicar no Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
